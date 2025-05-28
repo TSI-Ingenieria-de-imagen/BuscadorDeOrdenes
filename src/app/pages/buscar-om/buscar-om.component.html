@@ -1,0 +1,46 @@
+<form [formGroup]="formulario2" (ngSubmit)="buscarOm()">
+  <div class="box">
+    <div class="titulo">ESCRIBA UNA OM</div>
+    <input
+      formControlName="of"
+      type="text"
+      class="inputs"
+      placeholder="INGRESE OM ... AQUI"
+    />
+    <select
+      formControlName="destino"
+      class="inputs"
+      placeholder="Selecciona Destino"
+    >
+      <option value="0" selected>0: Pedidos</option>
+      <option value="1">1: Toma Datos</option>
+      <option value="2">2: Pic-Pto</option>
+      <option value="3">3: Fabrica</option>
+      <option value="4">4: Montaje</option>
+      <option value="5">5: CFO</option>
+      <option value="6">6: Prefactura</option>
+      <option value="7">7: Objeciones</option>
+      <option value="8">8: Comunicados</option>
+      <option value="9">9: PRL</option>
+      <option value="10">10: Factura Proveedor</option>
+      <option value="">Sin Destino</option>
+    </select>
+    <div class="caja-botones">
+      <div
+        routerLink="/buscar-orden"
+        style="color: #000"
+        class="button"
+        (click)="navegarYMostrarToast('buscar-orden')"
+      >
+        <span>VOLVER</span>
+      </div>
+      <button type="submit" class="button">
+        <span>BUSCAR</span>
+      </button>
+    </div>
+  </div>
+</form>
+
+<div *ngIf="mensajeDelServidor" class="mensaje-servidor">
+  {{ mensajeDelServidor }}
+</div>
