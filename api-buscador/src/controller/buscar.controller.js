@@ -7,154 +7,154 @@ const { error, log } = require("console");
 const router = express.Router();
 const { exec } = require("child_process");
 
-// ***********RUTAS FINALES PARA CONTRUIR CAMINO*******************
+// // ***********RUTAS FINALES PARA CONTRUIR CAMINO*******************
 
-const destinos = {
-  0: "00 PED",
-  1: "01 TD",
-  2: "02 PIC-PTTO",
-  3: "03 FAB",
-  4: "04 MONT",
-  5: "05 CFO",
-  6: "06 PREF",
-  7: "07 OBJ",
-  8: "08 COMUNICADOS",
-  9: "09 PRL",
-  10: "10 FRA-PRO",
-};
+// const destinos = {
+//   0: "00 PED",
+//   1: "01 TD",
+//   2: "02 PIC-PTTO",
+//   3: "03 FAB",
+//   4: "04 MONT",
+//   5: "05 CFO",
+//   6: "06 PREF",
+//   7: "07 OBJ",
+//   8: "08 COMUNICADOS",
+//   9: "09 PRL",
+//   10: "10 FRA-PRO",
+// };
 
-// ********************************MANEJAMOS METODO PARA BUSCAR OF******************
-const buscarOrden = (req, res) => {
-  const orden = req.params.numeroOF;
-  const destino = req.body.destino;
+// // ********************************MANEJAMOS METODO PARA BUSCAR OF******************
+// const buscarOrden = (req, res) => {
+//   const orden = req.params.numeroOF;
+//   const destino = req.body.destino;
 
-  if (!orden) {
-    res.status(400).send("Entrada inválida");
-    return;
-  }
+//   if (!orden) {
+//     res.status(400).send("Entrada inválida");
+//     return;
+//   }
 
-  fs.readFile("C:/TEMP/OFYTIPOS.txt", "utf8", (err, data) => {
-    if (err) {
-      console.error(err);
-      res.status(500).send("Error al leer el archivo");
-      return;
-    }
+//   fs.readFile("C:/TEMP/OFYTIPOS.txt", "utf8", (err, data) => {
+//     if (err) {
+//       console.error(err);
+//       res.status(500).send("Error al leer el archivo");
+//       return;
+//     }
 
-    const lineas = data.split("\n");
-    let lineaEncontrada = null;
+//     const lineas = data.split("\n");
+//     let lineaEncontrada = null;
 
-    for (const linea of lineas) {
-      const campos = linea.split(",");
-      if (campos[0] === orden) {
-        lineaEncontrada = campos;
-        break;
-      }
-    }
+//     for (const linea of lineas) {
+//       const campos = linea.split(",");
+//       if (campos[0] === orden) {
+//         lineaEncontrada = campos;
+//         break;
+//       }
+//     }
 
-    if (lineaEncontrada) {
-      const tipoCliente = lineaEncontrada[6];
-      let rutaBase = "";
+//     if (lineaEncontrada) {
+//       const tipoCliente = lineaEncontrada[6];
+//       let rutaBase = "";
 
-      switch (tipoCliente) {
-        case "REP":
-          rutaBase = "\\\\Kyrios\\REPSOL\\ESP\\00-REDEES\\";
-          break;
-        case "RPP":
-          rutaBase = "\\\\Kyrios\\REPSOL\\POR\\00-REDEES\\";
-          break;
-        case "REX":
-          rutaBase = "\\\\Kyrios\\REPSOL\\MEX\\00-REDEES\\";
-          break;
-        case "GAP":
-          rutaBase = "\\\\Kyrios\\galp\\ES\\00-REDEES\\";
-          break;
-        case "GPT":
-          rutaBase = "\\\\Kyrios\\galp\\PT\\00-REDEES\\";
-          break;
-        case "CGS":
-        case "CCL":
-        case "CEO":
-        case "CET":
-        case "CSA":
-        case "CED":
-        case "CVR":
-          rutaBase = "\\\\Kyrios\\cepsa\\ES\\00-REDEES\\";
-          break;
-        case "CSP":
-          rutaBase = "\\\\Kyrios\\cepsa\\PT\\00-REDEES\\";
-          break;
-        case "CEG":
-          rutaBase = "\\\\Kyrios\\cepsa\\GI\\00-REDEES\\";
-          break;
-        case "FCP":
-          rutaBase = "\\\\Kyrios\\ClientesVarios\\CEPSA - FCP\\ES\\00-Obras\\";
-          break;
-        case "SPS":
-          rutaBase = "\\\\Kyrios\\ClientesVarios\\CESPA - SPS\\ES\\00-Obras\\";
-          break;
-        case "DSA":
-          rutaBase = "\\\\KYRIOS\\Shell\\ES\\00-REDEES\\";
-          break;
-        case "DSL":
-          rutaBase = "\\\\KYRIOS\\Shell\\PT\\00-REDEES\\";
-          break;
-        default:
-          res.status(400).send("Tipo de cliente no reconocido");
-          return;
-      }
+//       switch (tipoCliente) {
+//         case "REP":
+//           rutaBase = "\\\\Kyrios\\REPSOL\\ESP\\00-REDEES\\";
+//           break;
+//         case "RPP":
+//           rutaBase = "\\\\Kyrios\\REPSOL\\POR\\00-REDEES\\";
+//           break;
+//         case "REX":
+//           rutaBase = "\\\\Kyrios\\REPSOL\\MEX\\00-REDEES\\";
+//           break;
+//         case "GAP":
+//           rutaBase = "\\\\Kyrios\\galp\\ES\\00-REDEES\\";
+//           break;
+//         case "GPT":
+//           rutaBase = "\\\\Kyrios\\galp\\PT\\00-REDEES\\";
+//           break;
+//         case "CGS":
+//         case "CCL":
+//         case "CEO":
+//         case "CET":
+//         case "CSA":
+//         case "CED":
+//         case "CVR":
+//           rutaBase = "\\\\Kyrios\\cepsa\\ES\\00-REDEES\\";
+//           break;
+//         case "CSP":
+//           rutaBase = "\\\\Kyrios\\cepsa\\PT\\00-REDEES\\";
+//           break;
+//         case "CEG":
+//           rutaBase = "\\\\Kyrios\\cepsa\\GI\\00-REDEES\\";
+//           break;
+//         case "FCP":
+//           rutaBase = "\\\\Kyrios\\ClientesVarios\\CEPSA - FCP\\ES\\00-Obras\\";
+//           break;
+//         case "SPS":
+//           rutaBase = "\\\\Kyrios\\ClientesVarios\\CESPA - SPS\\ES\\00-Obras\\";
+//           break;
+//         case "DSA":
+//           rutaBase = "\\\\KYRIOS\\Shell\\ES\\00-REDEES\\";
+//           break;
+//         case "DSL":
+//           rutaBase = "\\\\KYRIOS\\Shell\\PT\\00-REDEES\\";
+//           break;
+//         default:
+//           res.status(400).send("Tipo de cliente no reconocido");
+//           return;
+//       }
 
-      let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${
-        lineaEncontrada[3]
-      } - ${lineaEncontrada[5]}\\${lineaEncontrada[0].slice(
-        0,
-        4
-      )}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
+//       let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${
+//         lineaEncontrada[3]
+//       } - ${lineaEncontrada[5]}\\${lineaEncontrada[0].slice(
+//         0,
+//         4
+//       )}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
 
-      if (destino && destinos.hasOwnProperty(destino)) {
-        rutaCompleta += `\\${destinos[destino]}`;
-      }
+//       if (destino && destinos.hasOwnProperty(destino)) {
+//         rutaCompleta += `\\${destinos[destino]}`;
+//       }
 
-      fs.access(rutaCompleta, fs.constants.F_OK, (err) => {
-        if (err) {
-          console.log("Error al acceder a rutaCompleta:", err.message);
-          let rutaAnterior = `${rutaBase}${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
-          const comandoAnterior = `start "" "${rutaAnterior}"`;
-          exec(comandoAnterior, (error) => {
-            if (error) {
-              console.error("Error al abrir la carpeta anterior:", error);
-              res.status(500).send("Error al abrir la carpeta anterior");
-              return;
-            }
-            res.send({
-              ruta: rutaAnterior,
-              mensaje: `La carpeta especificada no se encontró porque no existe la carpeta ${lineaEncontrada[0].slice(
-                0,
-                4
-              )}-${lineaEncontrada[0].slice(4)} - ${
-                lineaEncontrada[1]
-              } para la orden que has ingresado [${orden}], se ha abierto la carpeta anterior.`,
-            });
-          });
-          return;
-        }
+//       fs.access(rutaCompleta, fs.constants.F_OK, (err) => {
+//         if (err) {
+//           console.log("Error al acceder a rutaCompleta:", err.message);
+//           let rutaAnterior = `${rutaBase}${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
+//           const comandoAnterior = `start "" "${rutaAnterior}"`;
+//           exec(comandoAnterior, (error) => {
+//             if (error) {
+//               console.error("Error al abrir la carpeta anterior:", error);
+//               res.status(500).send("Error al abrir la carpeta anterior");
+//               return;
+//             }
+//             res.send({
+//               ruta: rutaAnterior,
+//               mensaje: `La carpeta especificada no se encontró porque no existe la carpeta ${lineaEncontrada[0].slice(
+//                 0,
+//                 4
+//               )}-${lineaEncontrada[0].slice(4)} - ${
+//                 lineaEncontrada[1]
+//               } para la orden que has ingresado [${orden}], se ha abierto la carpeta anterior.`,
+//             });
+//           });
+//           return;
+//         }
 
-        const comando = `start "" "${rutaCompleta}"`;
-        exec(comando, (error) => {
-          if (error) {
-            console.error("Error al abrir la carpeta:", error);
-            res.status(500).send("Error al abrir la carpeta");
-            return;
-          }
-          res.send({ ruta: rutaCompleta });
-          console.log(rutaCompleta);
-        });
-      });
-    } else {
-      console.error("Orden no encontrada:", orden);
-      res.status(404).send("Orden no encontrada");
-    }
-  });
-};
+//         const comando = `start "" "${rutaCompleta}"`;
+//         exec(comando, (error) => {
+//           if (error) {
+//             console.error("Error al abrir la carpeta:", error);
+//             res.status(500).send("Error al abrir la carpeta");
+//             return;
+//           }
+//           res.send({ ruta: rutaCompleta });
+//           console.log(rutaCompleta);
+//         });
+//       });
+//     } else {
+//       console.error("Orden no encontrada:", orden);
+//       res.status(404).send("Orden no encontrada");
+//     }
+//   });
+// };
 
 // ************MANEJAMOS EL METODO PARA AVISOS***********************
 
@@ -625,6 +625,174 @@ const buscarOrdenCv = (req, res) => {
   });
 };
 
-// Comentario de modificaciones 
+// Comentario de modificaciones
+
+// Añadir la fallBack , en caso de no encontrarse en la ruta dada , se va a historicos 
+
+
+const destinos = {
+  0: "00 PED",
+  1: "01 TD",
+  2: "02 PIC-PTTO",
+  3: "03 FAB",
+  4: "04 MONT",
+  5: "05 CFO",
+  6: "06 PREF",
+  7: "07 OBJ",
+  8: "08 COMUNICADOS",
+  9: "09 PRL",
+  10: "10 FRA-PRO",
+};
+
+const buscarOrden = (req, res) => {
+  const orden = req.params.numeroOF;
+  const destino = req.body.destino;
+
+  if (!orden) {
+    res.status(400).send("Entrada inválida");
+    return;
+  }
+
+  fs.readFile("C:/TEMP/OFYTIPOS.txt", "utf8", (err, data) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send("Error al leer el archivo");
+      return;
+    }
+
+    const lineas = data.split("\n");
+    let lineaEncontrada = null;
+    for (const linea of lineas) {
+      const campos = linea.split(",");
+      if (campos[0] === orden) {
+        lineaEncontrada = campos;
+        break;
+      }
+    }
+
+    if (!lineaEncontrada) {
+      console.error("Orden no encontrada:", orden);
+      res.status(404).send("Orden no encontrada");
+      return;
+    }
+
+    const tipoCliente = lineaEncontrada[6];
+    let rutaBase = "";
+    switch (tipoCliente) {
+      case "REP":
+        rutaBase = "\\\\Kyrios\\REPSOL\\ESP\\00-REDEES\\";
+        break;
+      case "RPP":
+        rutaBase = "\\\\Kyrios\\REPSOL\\POR\\00-REDEES\\";
+        break;
+      case "REX":
+        rutaBase = "\\\\Kyrios\\REPSOL\\MEX\\00-REDEES\\";
+        break;
+      case "GAP":
+        rutaBase = "\\\\Kyrios\\galp\\ES\\00-REDEES\\";
+        break;
+      case "GPT":
+        rutaBase = "\\\\Kyrios\\galp\\PT\\00-REDEES\\";
+        break;
+      case "CGS":
+      case "CCL":
+      case "CEO":
+      case "CET":
+      case "CSA":
+      case "CED":
+      case "CVR":
+        rutaBase = "\\\\Kyrios\\cepsa\\ES\\00-REDEES\\";
+        break;
+      case "CSP":
+        rutaBase = "\\\\Kyrios\\cepsa\\PT\\00-REDEES\\";
+        break;
+      case "CEG":
+        rutaBase = "\\\\Kyrios\\cepsa\\GI\\00-REDEES\\";
+        break;
+      case "FCP":
+        rutaBase = "\\\\Kyrios\\ClientesVarios\\CEPSA - FCP\\ES\\00-Obras\\";
+        break;
+      case "SPS":
+        rutaBase = "\\\\Kyrios\\ClientesVarios\\CESPA - SPS\\ES\\00-Obras\\";
+        break;
+      case "DSA":
+        rutaBase = "\\\\KYRIOS\\Shell\\ES\\00-REDEES\\";
+        break;
+      case "DSL":
+        rutaBase = "\\\\KYRIOS\\Shell\\PT\\00-REDEES\\";
+        break;
+      default:
+        res.status(400).send("Tipo de cliente no reconocido");
+        return;
+    }
+
+    // Subcarpeta de ciudad y obra, y carpeta OF
+    const subcarpeta = `${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
+    const ofCarpeta = `${lineaEncontrada[0].slice(0,4)}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
+
+    // Ruta completa normal
+    let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${subcarpeta}\\${ofCarpeta}`;
+    if (destino != null && destinos.hasOwnProperty(destino)) {
+      rutaCompleta += `\\${destinos[destino]}`;
+    }
+
+    // Función auxiliar para abrir y responder
+    const abrirYCerrar = (ruta, mensaje) => {
+      const cmd = `start "" "${ruta}"`;
+      exec(cmd, error => {
+        if (error) {
+          console.error("Error al abrir la carpeta:", error);
+          return res.status(500).send(mensaje || "Error al abrir la carpeta");
+        }
+        if (mensaje) {
+          return res.send({ ruta, mensaje });
+        }
+        return res.send({ ruta });
+      });
+    };
+
+    // 1) Intentar ruta completa
+    fs.access(rutaCompleta, fs.constants.F_OK, errMain => {
+      if (!errMain) {
+        return abrirYCerrar(rutaCompleta);
+      }
+
+      // 2) Intentar en histórico
+      let rutaHistBase;
+      // Variante: para Repsol usar carpeta específica
+      if (["REP","RPP","REX"].includes(tipoCliente)) {
+        // extraer sufijo de rutaBase: por ejemplo "ESP\\00-REDEES\\"
+        const sufijo = rutaBase.split("\\").slice(-3).join("\\");
+        rutaHistBase = `\\\\Kyrios\\Historico REPSOL\\${sufijo}`;
+      } else {
+        // resto de clientes: carpeta "Historicos" genérica
+        rutaHistBase = rutaBase.replace(/^\\\\Kyrios\\/i, "\\\\Kyrios\\Historicos\\");
+      }
+
+      let rutaHistoricos = `${rutaHistBase}${lineaEncontrada[4]}\\${subcarpeta}\\${ofCarpeta}`;
+      if (destino != null && destinos.hasOwnProperty(destino)) {
+        rutaHistoricos += `\\${destinos[destino]}`;
+      }
+
+      fs.access(rutaHistoricos, fs.constants.F_OK, errHist => {
+        if (!errHist) {
+          return abrirYCerrar(
+            rutaHistoricos,
+            "No se encontró en la ubicación normal, mostrando en Histórico."
+          );
+        }
+
+        // 3) Fallback final: carpeta anterior
+        console.log("No existe ni en principal ni en Histórico");
+        const rutaAnterior = `${rutaBase}${lineaEncontrada[4]}\\${subcarpeta}`;
+        abrirYCerrar(
+          rutaAnterior,
+          "No se encontró la carpeta de detalle ni en Histórico, mostrando carpeta anterior."
+        );
+      });
+    });
+  });
+};
+
 
 module.exports = { buscarOrden, buscarOM, copiarArchivo, buscarOrdenCv };
