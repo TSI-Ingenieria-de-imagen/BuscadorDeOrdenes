@@ -29,9 +29,10 @@ import { ClientesVariosComponent } from './pages/clientes-varios/clientes-varios
     BrowserModule,
     AppRoutingModule,
     ToastrModule.forRoot({
-      timeOut: 10000,
+      // timeOut: 10000,
       positionClass: 'toast-bottom-right',
       preventDuplicates: true,
+      toastClass: 'ngx-toastr custom-toast-font'
     }),
     BrowserAnimationsModule,
     ReactiveFormsModule,

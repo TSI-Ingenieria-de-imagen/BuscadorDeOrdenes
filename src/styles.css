@@ -5,6 +5,10 @@
     text-decoration: none;
 }
 
-@import url('https://fonts.googleapis.com/css2?family=Audiowide&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
+/* Clase custom para los toasts usando únicamente Montserrat */
+.custom-toast-font {
+  font-family: 'Montserrat', sans-serif !important;
+  font-size: 14px !important;
+}

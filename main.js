@@ -18,18 +18,18 @@ function createWindow() {
 
   mainWindow.setMenu(null);
 
-  // mainWindow.loadURL('http://localhost:4200');
+  mainWindow.loadURL('http://localhost:4200');
 
  
-  const indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
+  // const indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
 
-  mainWindow.loadURL(
-    url.format({
-      pathname: indexPath,
-      protocol: "file:",
-      slashes: true,
-    })
-  );
+  // mainWindow.loadURL(
+  //   url.format({
+  //     pathname: indexPath,
+  //     protocol: "file:",
+  //     slashes: true,
+  //   })
+  // );
 
   mainWindow.on('closed', function () {
     mainWindow = null;
