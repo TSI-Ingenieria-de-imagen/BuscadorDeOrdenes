@@ -357,48 +357,8 @@ const buscarOM = (req, res) => {
   });
 };
 
-// ******************AQUI COPIAMOS EL TXT ORIGINAL Y LO COPIAMOS EN C:\TEMP TAL CUAL**********
 
-// const copiarArchivo = (req, res) => {
-//   fs.copyFile('\\\\KYRIOS\\Repsol\\OFYTIPOS.txt', 'C:/TEMP/OFYTIPOS.txt', (err) => {
-//       if (err) {
-//           console.error('Error al copiar el archivo:', err);
-//           res.status(500).json({ mensaje: 'Error al copiar el archivo de origen en "C:TEMP" ' });  // ponemos en mensaje en 'mensaje' para poder enviarla al front
-//           return;
-//       }
-//       res.json({ mensaje: 'Copia del txt de origen para leer los datos se ha reliazo correctamente en "C:\TEMP" '});  // aqui los mismo que el mensaje anterior
-//   });
-// };
 
-// **********************AQUI COPIAMOS EL TXT ORIGINAL Y LO CONVERTIMOS A UTF-8 , PARA QUE PUEDA CONTRUIR RUTAS CON CARACTERES ESPECIALES******
-
-// const copiarArchivo = (req, res) => {
-//   // Leer el archivo original con codificación 'latin1'
-//   fs.readFile(
-//     "\\\\KYRIOS\\Repsol\\OFYTIPOS.txt",
-//     "latin1",
-//     (err, contenidoAnsi) => {
-//       if (err) {
-//         console.error("Error al leer el archivo de origen:", err);
-//         res.status(500).json({ mensaje: "Error al leer el archivo de origen" });
-//         return;
-//       }
-
-//       // Escribir el contenido leído en el archivo de destino con codificación UTF-8
-//       fs.writeFile("C:/TEMP/OFYTIPOS.txt", contenidoAnsi, "utf8", (err) => {
-//         if (err) {
-//           console.error('Error al escribir el archivo en "C:/TEMP":', err);
-//           res
-//             .status(500)
-//             .json({ mensaje: 'Error al escribir el archivo en "C:/TEMP"' });
-//           return;
-//         }
-
-//         res.json({ mensaje: "Listo para usar , OK" });
-//       });
-//     }
-//   );
-// };
 
 const copiarArchivo = (req, res) => {
   // Función para copiar un archivo específico
@@ -499,34 +459,32 @@ const configuracionesClientes = {
     noCampanaPath: "ES\\00-Obras\\",
   },
   OYS: {
-    basePath: "\\\\KYRIOSClientesVariosSEAT - OYS",
+    basePath: "\\\\KYRIOS\\ClientesVarios\\SEAT - OYS\\",
     noCampanaPath: "ES\\00-Obras\\",
   },
   SEA: {
-    basePath: "\\\\KYRIOSClientesVariosSEAT - SEA",
+    basePath: "\\\\KYRIOS\\ClientesVarios\\SEAT - SEA\\",
     noCampanaPath: "ES\\00-Obras\\",
   },
 };
+
 
 const buscarOrdenCv = (req, res) => {
   const orden = req.params.numeroOF;
   const destino = req.body.destino;
 
   if (!orden) {
-    res.status(400).send("Entrada inválida");
-    return;
+    return res.status(400).send("Entrada inválida");
   }
 
   fs.readFile("C:\\TEMP\\OFYTIPOS2.txt", "utf8", (err, data) => {
     if (err) {
       console.error(err);
-      res.status(500).send("Error al leer el archivo");
-      return;
+      return res.status(500).send("Error al leer el archivo");
     }
 
     const lineas = data.split("\n");
     let lineaEncontrada = null;
-
     for (const linea of lineas) {
       const campos = linea.split(",");
       if (campos[0] === orden) {
@@ -534,98 +492,87 @@ const buscarOrdenCv = (req, res) => {
         break;
       }
     }
+    if (!lineaEncontrada) {
+      console.error("Orden no encontrada:", orden);
+      return res.status(404).send("Orden no encontrada");
+    }
 
-    if (lineaEncontrada) {
-      // const cliente = lineaEncontrada[10] || lineaEncontrada[6];
-      const cliente = lineaEncontrada[6];
-      const configuracion = configuracionesClientes[cliente];
+    const cliente = lineaEncontrada[6];
+    const config = configuracionesClientes[cliente];
+    if (!config) {
+      console.error("Configuración no encontrada para el cliente:", cliente);
+      return res.status(404).send("Configuración no encontrada para el cliente");
+    }
 
-      if (!configuracion) {
-        console.error("Configuración no encontrada para el cliente:", cliente);
-        res.status(404).send("Configuración no encontrada para el cliente");
-        return;
+    // Base + (campaña o no)
+    let rutaBase = config.basePath;
+    if (lineaEncontrada[9] === "S" && config.campanaPath) {
+      rutaBase += config.campanaPath.replace("{año}", lineaEncontrada[8]);
+    } else {
+      rutaBase += config.noCampanaPath;
+    }
+
+    const subcarpeta = `${lineaEncontrada[3]} - ${lineaEncontrada[4]}`;
+    const ofCarpeta = `${lineaEncontrada[0].slice(0,4)}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
+    let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${subcarpeta}\\${ofCarpeta}`;
+    if (destino != null && destinos.hasOwnProperty(destino)) {
+      rutaCompleta += `\\${destinos[destino]}`;
+    }
+
+    // helper para abrir carpeta y responder
+    const abrirYCerrar = (ruta, mensaje) => {
+      exec(`start "" "${ruta}"`, error => {
+        if (error) {
+          console.error("Error al abrir carpeta:", error);
+          return res.status(500).send(mensaje || "Error al abrir la carpeta");
+        }
+        if (mensaje) return res.send({ ruta, mensaje });
+        return res.send({ ruta });
+      });
+    };
+
+    // 1) comprueba rutaCompleta
+    fs.access(rutaCompleta, fs.constants.F_OK, errMain => {
+      if (!errMain) {
+        return abrirYCerrar(rutaCompleta);
       }
 
-      let rutaBase = configuracion.basePath;
-
-      if (lineaEncontrada[9] === "S") {
-        rutaBase += configuracion.campanaPath.replace(
-          "{año}",
-          lineaEncontrada[8]
-        );
-      } else {
-        rutaBase += configuracion.noCampanaPath;
+      // 2) fallback histórico de Clientes Varios
+      const rutaHist = rutaBase.replace(
+        /^\\\\kyrios\\ClientesVarios\\/i,
+        "\\\\kyrios\\Historicos\\CliVar\\"
+      );
+      let rutaHistoricos = `${rutaHist}${lineaEncontrada[4]}\\${subcarpeta}\\${ofCarpeta}`;
+      if (destino != null && destinos.hasOwnProperty(destino)) {
+        rutaHistoricos += `\\${destinos[destino]}`;
       }
 
-      let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${
-        lineaEncontrada[3]
-      } - ${lineaEncontrada[5]}\\${lineaEncontrada[0].slice(
-        0,
-        4
-      )}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
-
-      if (destino && destinos.hasOwnProperty(destino)) {
-        rutaCompleta += `\\${destinos[destino]}`;
-      }
-
-      // Verificar si la ruta completa existe
-      fs.access(rutaCompleta, fs.constants.F_OK, (err) => {
-        if (err) {
-          // Si la ruta completa no se encuentra, intenta abrir la carpeta de la provincia
-          const rutaProvincia = `${rutaBase}${lineaEncontrada[4]}`;
-          fs.access(rutaProvincia, fs.constants.F_OK, (errProvincia) => {
-            if (errProvincia) {
-              console.error(
-                "Tampoco se encontró la ruta de la provincia:",
-                errProvincia.message
-              );
-              res.status(500).send("Error al abrir la carpeta de la provincia");
-              return;
-            }
-
-            const comandoProvincia = `start "" "${rutaProvincia}"`;
-            exec(comandoProvincia, (errorProvincia) => {
-              if (errorProvincia) {
-                console.error(
-                  "Error al abrir la carpeta de la provincia:",
-                  errorProvincia
-                );
-                res
-                  .status(500)
-                  .send("Error al abrir la carpeta de la provincia");
-                return;
-              }
-              res.send({
-                ruta: rutaProvincia,
-                mensaje:
-                  "La carpeta especificada no se encontró, se ha abierto la carpeta de la provincia.",
-              });
-            });
-          });
-          return;
+      fs.access(rutaHistoricos, fs.constants.F_OK, errHist => {
+        if (!errHist) {
+          return abrirYCerrar(
+            rutaHistoricos,
+            "No se encontró en la ubicación normal, mostrando en Histórico."
+          );
         }
 
-        // Si la ruta completa existe, imprímela y ábrela
-        console.log(rutaCompleta);
-
-        const comando = `start "" "${rutaCompleta}"`;
-        exec(comando, (error) => {
-          if (error) {
-            console.error("Error al abrir la carpeta:", error);
-            res.status(500).send("Error al abrir la carpeta");
-            return;
+        // 3) último recurso: carpeta de provincia
+        console.log("No existe ruta normal ni histórica", rutaBase,lineaEncontrada[4]);
+        const rutaProvincia = `${rutaBase}${lineaEncontrada[4]}`;
+        fs.access(rutaProvincia, fs.constants.F_OK, errProv => {
+          if (errProv) {
+            console.error("Tampoco se encontró la carpeta de la provincia:", errProv.message);
+            return res.status(500).send("Error al abrir la carpeta de la provincia");
           }
-          res.send({ ruta: rutaCompleta });
+          abrirYCerrar(
+            rutaProvincia,
+            "La carpeta especificada no se encontró, se ha abierto la carpeta de la provincia."
+          );
         });
       });
-    } else {
-      console.error("Orden no encontrada:", orden);
-      res.status(404).send("Orden no encontrada");
-    }
+    });
   });
 };
 
-// Comentario de modificaciones
 
 // Añadir la fallBack , en caso de no encontrarse en la ruta dada , se va a historicos 
 
