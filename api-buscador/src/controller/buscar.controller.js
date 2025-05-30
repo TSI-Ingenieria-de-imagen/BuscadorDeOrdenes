@@ -512,7 +512,7 @@ const buscarOrdenCv = (req, res) => {
       rutaBase += config.noCampanaPath;
     }
 
-    const subcarpeta = `${lineaEncontrada[3]} - ${lineaEncontrada[4]}`;
+    const subcarpeta = `${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
     const ofCarpeta = `${lineaEncontrada[0].slice(0,4)}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
     let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${subcarpeta}\\${ofCarpeta}`;
     if (destino != null && destinos.hasOwnProperty(destino)) {
@@ -520,6 +520,8 @@ const buscarOrdenCv = (req, res) => {
     }
 
     // helper para abrir carpeta y responder
+    console.log(rutaCompleta);
+    
     const abrirYCerrar = (ruta, mensaje) => {
       exec(`start "" "${ruta}"`, error => {
         if (error) {
