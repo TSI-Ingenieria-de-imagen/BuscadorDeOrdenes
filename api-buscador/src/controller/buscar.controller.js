@@ -360,6 +360,62 @@ const buscarOM = (req, res) => {
 
 
 
+// const copiarArchivo = (req, res) => {
+//   // Función para copiar un archivo específico
+//   const copiarUnArchivo = (archivoOrigen, archivoDestino, callback) => {
+//     // Leer el archivo original con codificación 'latin1'
+//     fs.readFile(archivoOrigen, "latin1", (err, contenidoAnsi) => {
+//       if (err) {
+//         console.error(
+//           `Error al leer el archivo de origen (${archivoOrigen}):`,
+//           err
+//         );
+//         callback(err);
+//         return;
+//       }
+
+//       // Escribir el contenido leído en el archivo de destino con codificación UTF-8
+//       fs.writeFile(archivoDestino, contenidoAnsi, "utf8", (err) => {
+//         if (err) {
+//           console.error(
+//             `Error al escribir el archivo en "${archivoDestino}":`,
+//             err
+//           );
+//           callback(err);
+//           return;
+//         }
+
+//         callback();
+//       });
+//     });
+//   };
+
+//   // Copiar ambos archivos
+//   copiarUnArchivo(
+//     "\\\\KYRIOS\\Repsol\\OFYTIPOS.txt",
+//     "C:/TEMP/OFYTIPOS.txt",
+//     (err1) => {
+//       if (err1) {
+//         res.status(500).json({ mensaje: `Error al copiar OFYTIPOS.txt` });
+//         return;
+//       }
+
+//       copiarUnArchivo(
+//         "\\\\KYRIOS\\Repsol\\OFYTIPOS2.txt",
+//         "C:/TEMP/OFYTIPOS2.txt",
+//         (err2) => {
+//           if (err2) {
+//             res.status(500).json({ mensaje: `Error al copiar OFYTIPOS2.txt` });
+//             return;
+//           }
+
+//           res.json({ mensaje: "OK" });
+//         }
+//       );
+//     }
+//   );
+// };
+
 const copiarArchivo = (req, res) => {
   // Función para copiar un archivo específico
   const copiarUnArchivo = (archivoOrigen, archivoDestino, callback) => {
@@ -390,7 +446,7 @@ const copiarArchivo = (req, res) => {
     });
   };
 
-  // Copiar ambos archivos
+  // Copiar primero OFYTIPOS.txt
   copiarUnArchivo(
     "\\\\KYRIOS\\Repsol\\OFYTIPOS.txt",
     "C:/TEMP/OFYTIPOS.txt",
@@ -400,16 +456,34 @@ const copiarArchivo = (req, res) => {
         return;
       }
 
+      // Luego copiar OFYTIPOS2.txt
       copiarUnArchivo(
         "\\\\KYRIOS\\Repsol\\OFYTIPOS2.txt",
         "C:/TEMP/OFYTIPOS2.txt",
         (err2) => {
           if (err2) {
-            res.status(500).json({ mensaje: `Error al copiar OFYTIPOS2.txt` });
+            res
+              .status(500)
+              .json({ mensaje: `Error al copiar OFYTIPOS2.txt` });
             return;
           }
 
-          res.json({ mensaje: "OK" });
+          // Finalmente copiar PRUEBA1.txt
+          copiarUnArchivo(
+            "\\\\KYRIOS\\Repsol\\PRUEBA1.txt",
+            "C:/TEMP/PRUEBA1.txt",
+            (err3) => {
+              if (err3) {
+                res
+                  .status(500)
+                  .json({ mensaje: `Error al copiar PRUEBA1.txt` });
+                return;
+              }
+
+              // Si todo salió bien
+              res.json({ mensaje: "OK" });
+            }
+          );
         }
       );
     }
