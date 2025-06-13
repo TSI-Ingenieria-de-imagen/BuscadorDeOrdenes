@@ -5,7 +5,6 @@
   align-items: center;
   text-align: center;
   background: #232020;
-  /* border: 1px solid green; */
 
   width: 100%;
   height: 100vh;
@@ -23,7 +22,6 @@
   text-align: center;
   background: var(--background);
   --background: linear-gradient(to left, #f7ba2b 0%, #f7ba2b 100%);
-  /* border: 1px solid red; */
   box-shadow: 0px 10px 20px rgba(235, 230, 230, 0.2);
 
   width: 95%;
@@ -45,7 +43,6 @@
   align-items: center;
   text-align: center;
   background: #232020;
-  /* border: 1px solid green; */
 
   width: 100%;
   height: 50%;
@@ -70,7 +67,6 @@
   border-radius: 5px;
   border: 0;
   background-color: #ff9800;
-  /* letter-spacing: 1.5px; */
   transition: all 0.3s ease;
   box-shadow: rgb(0, 0, 0.5) 0px 7px 0px 0px;
   color: hsl(0, 0, 0.1);
@@ -92,13 +88,6 @@
   transform: translateY(5px);
   transition: 200ms;
 }
-
-
-
-
-
-
-
 
 
 /* ***************************************DISEÑO 2 BOTON************************* */
