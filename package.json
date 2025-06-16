@@ -33,6 +33,7 @@
     "@angular/compiler-cli": "^16.2.0",
     "@types/jasmine": "~4.3.0",
     "electron": "^27.0.2",
+    "electron-packager": "^17.1.2",
     "electron-reload": "^2.0.0-alpha.1",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.0",

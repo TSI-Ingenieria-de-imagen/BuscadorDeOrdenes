@@ -43,6 +43,7 @@ Thumbs.db
 
 # Electron app empaquetada
 /BuscadorDeOrdenesNode/
+/BuscadorDeOrdenesNode-win32-x64/
 
 
 .env
