@@ -1,7 +1,7 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('path'); 
-const url = require('url'); 
-// require('electron-reload')(__dirname);  
+const { app, BrowserWindow, dialog } = require('electron');
+const path = require('path');
+const url = require('url');
+const { autoUpdater } = require('electron-updater');
 const startServer = require('./api-buscador/src/apiRest');
 
 let mainWindow;
@@ -40,7 +40,28 @@ function createWindow() {
 
 app.on('ready', () => {
   createWindow();
-  startServer();  // Inicia tu API 
+  startServer();
+
+  autoUpdater.checkForUpdatesAndNotify(); // comprueba si hay updates
+});
+
+autoUpdater.on('update-available', () => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Actualización disponible',
+    message: 'Hay una nueva versión disponible. Se descargará en segundo plano.'
+  });
+});
+
+autoUpdater.on('update-downloaded', () => {
+  dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Reiniciar y actualizar', 'Más tarde'],
+    defaultId: 0,
+    message: 'La nueva versión está lista. ¿Quieres reiniciar ahora para actualizar?',
+  }).then(result => {
+    if (result.response === 0) autoUpdater.quitAndInstall();
+  });
 });
 
 app.on('window-all-closed', function () {
