@@ -7,11 +7,7 @@ const log = require('electron-log');
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = 'info';
-
-// Para mostrar logs en la consola también (útil en desarrollo)
 log.transports.console.level = 'debug';
-
-// OPCIONAL: Forzar autodescarga (suele venir ya así)
 autoUpdater.autoDownload = true;
 
 let mainWindow;
@@ -22,36 +18,35 @@ function createWindow() {
     height: 180,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false // Necesario si usas nodeIntegration
+      contextIsolation: false
     },
     frame: true 
   });
 
-  // mainWindow.setMenu(null);
-
-  const fs = require('fs');
-  // --- PRIMERO busca en producción instalada ---
-  let indexPath = path.join(process.resourcesPath, 'app', 'dist', 'front-buscador-of', 'index.html');
-
-  // --- Si no existe, busca en entorno desarrollo ---
-  if (!fs.existsSync(indexPath)) {
-    indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
+  // --- DETECCIÓN SIMPLIFICADA ---
+  if (!app.isPackaged) {
+    log.info('Entorno: DESARROLLO (cargando localhost:4200)');
+    mainWindow.loadURL('http://localhost:4200');
+  } else {
+    log.info('Entorno: PRODUCCIÓN (cargando index.html empaquetado)');
+    const fs = require('fs');
+    let indexPath = path.join(process.resourcesPath, 'app', 'dist', 'front-buscador-of', 'index.html');
+    if (!fs.existsSync(indexPath)) {
+      indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
+    }
+    if (!fs.existsSync(indexPath)) {
+      dialog.showErrorBox('ERROR', `No se encontró index.html en:\n${indexPath}`);
+      log.error('No se encontró index.html en:', indexPath);
+      return app.quit();
+    }
+    mainWindow.loadURL(
+      url.format({
+        pathname: indexPath,
+        protocol: "file:",
+        slashes: true,
+      })
+    );
   }
-
-  // --- Si sigue sin existir, muestra error ---
-  if (!fs.existsSync(indexPath)) {
-    dialog.showErrorBox('ERROR', `No se encontró index.html en:\n${indexPath}`);
-    log.error('No se encontró index.html en:', indexPath);
-    return app.quit();
-  }
-
-  mainWindow.loadURL(
-    url.format({
-      pathname: indexPath,
-      protocol: "file:",
-      slashes: true,
-    })
-  );
 
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -67,8 +62,7 @@ app.on('ready', () => {
   autoUpdater.checkForUpdatesAndNotify();
 });
 
-// --- Eventos de autoUpdater con logs potentes ---
-
+// Eventos de autoUpdater
 autoUpdater.on('checking-for-update', () => {
   log.info('[autoUpdater] Buscando actualizaciones...');
 });
@@ -90,8 +84,6 @@ autoUpdater.on('error', (err) => {
 autoUpdater.on('download-progress', (progressObj) => {
   let log_message = `Descargando actualización: ${Math.round(progressObj.percent)}% | ${progressObj.transferred}/${progressObj.total} bytes`;
   log.info('[autoUpdater] ' + log_message);
-  // Opcional: Mostrarlo solo si quiero feedback visible
-  // dialog.showMessageBox({ type: 'info', title: 'Descargando actualización', message: log_message });
 });
 autoUpdater.on('update-downloaded', (info) => {
   log.info('[autoUpdater] Update descargada, lista para instalar:', info);
@@ -109,10 +101,10 @@ autoUpdater.on('update-downloaded', (info) => {
 app.on('window-all-closed', function () {
   if (process.platform !== 'darwin') app.quit();
 });
-
 app.on('activate', function () {
   if (mainWindow === null) createWindow();
 });
+
 
 
 

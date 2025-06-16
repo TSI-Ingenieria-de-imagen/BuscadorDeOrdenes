@@ -1,20 +1,19 @@
 {
   "name": "front-buscador-of",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Buscador de órdenes TSI",
   "author": "TSI Ingeniería de Imagen",
   "main": "main.js",
   "private": true,
   "scripts": {
-    "ng": "ng",
     "start": "ng serve",
     "build": "ng build --base-href ./",
-    "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "electron-c": "ng build --base-href ./ && electron ./main.js",
-    "electron": "electron ./main.js",
-    "dist": "npm run build && electron-builder --win --x64",
-    "package-win": "npm run build && electron-builder --win nsis"
+    "watch": "ng build --watch --configuration development",
+    "electron": "electron ./main.js",                             
+    "electron-dev": "ng build --base-href ./ && electron ./main.js", 
+    "dist": "npm run build && electron-builder --win --x64",      
+    "package-win": "npm run build && electron-builder --win nsis" 
   },
   "dependencies": {
     "@angular/animations": "^16.2.10",
@@ -75,3 +74,5 @@
     }
   }
 }
+
+
