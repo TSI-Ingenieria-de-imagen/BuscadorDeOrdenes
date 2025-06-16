@@ -64,7 +64,8 @@
       "package.json"
     ],
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "artifactName": "BuscadorDeOrdenes-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
