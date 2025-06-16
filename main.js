@@ -17,7 +17,7 @@ function createWindow() {
     frame: true 
   });
 
-  mainWindow.setMenu(null);
+  // mainWindow.setMenu(null);
 
   // mainWindow.loadURL('http://localhost:4200'); // para desarrollo 
 
@@ -74,6 +74,20 @@ autoUpdater.on('update-downloaded', () => {
     message: 'La nueva versión está lista. ¿Quieres reiniciar ahora para actualizar?',
   }).then(result => {
     if (result.response === 0) autoUpdater.quitAndInstall();
+  });
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  let log_message = "Descargando actualización: " + Math.round(progressObj.percent) + "%";
+  // Puedes mostrarlo con un dialog, consola, o enviarlo al renderer vía IPC
+  console.log(log_message);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  dialog.showMessageBox({
+    type: 'info',
+    title: 'Descargando actualización',
+    message: `Progreso: ${Math.round(progressObj.percent)}%`
   });
 });
 
