@@ -90,7 +90,7 @@ autoUpdater.on('error', (err) => {
 autoUpdater.on('download-progress', (progressObj) => {
   let log_message = `Descargando actualización: ${Math.round(progressObj.percent)}% | ${progressObj.transferred}/${progressObj.total} bytes`;
   log.info('[autoUpdater] ' + log_message);
-  // Opcional: puedes mostrarlo solo si quieres feedback visible
+  // Opcional: Mostrarlo solo si quiero feedback visible
   // dialog.showMessageBox({ type: 'info', title: 'Descargando actualización', message: log_message });
 });
 autoUpdater.on('update-downloaded', (info) => {
