@@ -19,12 +19,18 @@ function createWindow() {
 
   mainWindow.setMenu(null);
 
-  // mainWindow.loadURL('http://localhost:4200');
+  // mainWindow.loadURL('http://localhost:4200'); // para desarrollo 
 
-  const indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
-
-  // Verifica que el index.html existe antes de cargarlo
   const fs = require('fs');
+  // --- PRIMERO busca en producción instalada ---
+  let indexPath = path.join(process.resourcesPath, 'app', 'dist', 'front-buscador-of', 'index.html');
+
+  // --- Si no existe, busca en entorno desarrollo ---
+  if (!fs.existsSync(indexPath)) {
+    indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
+  }
+
+  // --- Si sigue sin existir, muestra error ---
   if (!fs.existsSync(indexPath)) {
     dialog.showErrorBox('ERROR', `No se encontró index.html en:\n${indexPath}`);
     return app.quit();
@@ -78,4 +84,5 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
   if (mainWindow === null) createWindow();
 });
+
 

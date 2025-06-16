@@ -13,7 +13,7 @@
     "test": "ng test",
     "electron-c": "ng build --base-href ./ && electron ./main.js",
     "electron": "electron ./main.js",
-    "dist": "electron-builder",
+    "dist": "npm run build && electron-builder --win --x64",
     "package-win": "npm run build && electron-builder --win nsis"
   },
   "dependencies": {
