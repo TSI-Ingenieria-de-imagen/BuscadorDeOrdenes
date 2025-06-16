@@ -1,17 +1,20 @@
 {
   "name": "front-buscador-of",
   "version": "1.0.0",
+  "description": "Buscador de órdenes TSI",
+  "author": "TSI Ingeniería de Imagen",
   "main": "main.js",
   "private": true,
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --base-href ./",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "electron-c": "ng build --base-href ./ && electron ./main.js",
     "electron": "electron ./main.js",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "package-win": "npm run build && electron-builder --win nsis"
   },
   "dependencies": {
     "@angular/animations": "^16.2.10",
@@ -22,6 +25,9 @@
     "@angular/platform-browser": "^16.2.0",
     "@angular/platform-browser-dynamic": "^16.2.0",
     "@angular/router": "^16.2.0",
+    "cors": "^2.8.5",
+    "electron-updater": "^6.1.1",
+    "express": "^5.1.0",
     "ngx-toastr": "^17.0.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
@@ -34,7 +40,6 @@
     "@types/jasmine": "~4.3.0",
     "electron": "^27.0.2",
     "electron-builder": "^26.0.12",
-    "electron-updater": "^6.6.2",
     "electron-reload": "^2.0.0-alpha.1",
     "jasmine-core": "~4.6.0",
     "karma": "~6.4.0",
@@ -47,16 +52,27 @@
   "build": {
     "appId": "com.tsi.buscadorof",
     "productName": "BuscadorDeOrdenes",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "api-buscador/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
     "win": {
       "target": "nsis"
     },
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "TSI-Ingenieria-de-imagen",
-        "repo": "BuscadorDeOrdenes"
-      }
-    ]
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true
+    }
   }
 }
+
+
 

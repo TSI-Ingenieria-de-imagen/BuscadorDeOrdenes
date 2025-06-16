@@ -11,7 +11,8 @@ function createWindow() {
     width: 320,
     height: 180,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      contextIsolation: false // Necesario si usas nodeIntegration
     },
     frame: true 
   });
@@ -20,8 +21,14 @@ function createWindow() {
 
   // mainWindow.loadURL('http://localhost:4200');
 
- 
   const indexPath = path.join(__dirname, 'dist', 'front-buscador-of', 'index.html');
+
+  // Verifica que el index.html existe antes de cargarlo
+  const fs = require('fs');
+  if (!fs.existsSync(indexPath)) {
+    dialog.showErrorBox('ERROR', `No se encontró index.html en:\n${indexPath}`);
+    return app.quit();
+  }
 
   mainWindow.loadURL(
     url.format({
@@ -40,7 +47,7 @@ function createWindow() {
 
 app.on('ready', () => {
   createWindow();
-  startServer();
+  startServer(); // Lanza la API
 
   autoUpdater.checkForUpdatesAndNotify(); // comprueba si hay updates
 });
@@ -71,3 +78,4 @@ app.on('window-all-closed', function () {
 app.on('activate', function () {
   if (mainWindow === null) createWindow();
 });
+
