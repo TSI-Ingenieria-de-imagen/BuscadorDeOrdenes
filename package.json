@@ -1,6 +1,6 @@
 {
   "name": "front-buscador-of",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Buscador de órdenes TSI",
   "author": "TSI Ingeniería de Imagen",
   "main": "main.js",
