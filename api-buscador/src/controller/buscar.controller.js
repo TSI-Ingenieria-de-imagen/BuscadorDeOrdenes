@@ -52,8 +52,8 @@ const copiarArchivo = (req, res) => {
 
       // Luego copiar OFYTIPOS2.txt
       copiarUnArchivo(
-        "\\\\KYRIOS\\Repsol\\OFYTIPOS2.txt",
-        "C:/TEMP/OFYTIPOS2.txt",
+        "\\\\KYRIOS\\Repsol\\OFYTIPOSVP.txt",
+        "C:/TEMP/OFYTIPOSVP.txt",
         (err2) => {
           if (err2) {
             res
@@ -223,7 +223,7 @@ function buscarOrden(req, res) {
   const destino = req.body.destino;
   if (!orden) return res.status(400).send('Entrada inválida');
 
-  fs.readFile('C:/TEMP/PRUEBA1.txt', 'utf8', (err, data) => {
+  fs.readFile('C:/TEMP/OFYTIPOSVP.txt', 'utf8', (err, data) => {
     if (err) return res.status(500).send('Error al leer el archivo');
 
     const lineas = data.split(/\r?\n/);
@@ -323,7 +323,7 @@ function buscarAviso(req, res) {
   const destino = req.body.destino;
   if (!aviso) return res.status(400).send('Entrada inválida');
 
-  fs.readFile('C:/TEMP/PRUEBA1.txt', 'utf8', (err, data) => {
+  fs.readFile('C:/TEMP/OFYTIPOSVP.txt', 'utf8', (err, data) => {
     if (err) return res.status(500).send('Error al leer el archivo');
 
     const lineas = data.split(/\r?\n/);
