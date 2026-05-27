@@ -38,20 +38,19 @@ export class BuscarOmComponent implements OnInit {
   buscarOm() {
     const om = this.formulario2?.get('of')?.value;
     const destino = this.formulario2?.get('destino')?.value;
-    this.buscarOmService.buscarOm(om, destino)
-      .subscribe(
-        respuesta => {
-          if (respuesta.mensaje) {
-            window.alert(respuesta.mensaje);  // Muestra el mensaje en una ventana de alerta
-          } else {
-            // Si deseas, puedes agregar un mensaje de éxito aquí
-            window.alert('Operación exitosa');  // Muestra el mensaje en una ventana de alerta
-          }
-        },
-        error => {
-          console.error('Error: ', error);
-          window.alert('Error al buscar la OM');  // Muestra el mensaje en una ventana de alerta
+
+    this.buscarOmService.buscarOm(om, destino).subscribe(
+      respuesta => {
+        if (respuesta.mensaje) {
+          this.toastr.warning(respuesta.mensaje, 'Aviso', { timeOut: 6000, disableTimeOut: false });
+        } else {
+          this.toastr.success('Operación exitosa');
         }
-      );
+      },
+      error => {
+        console.error('Error: ', error);
+        this.toastr.error('Error al buscar la OM');
+      }
+    );
   }
 }

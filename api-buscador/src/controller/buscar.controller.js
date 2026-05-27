@@ -103,43 +103,90 @@ const buscarOrden = (req, res) => {
           return;
       }
 
-      let rutaCompleta = `${rutaBase}${lineaEncontrada[4]}\\${
-        lineaEncontrada[3]
-      } - ${lineaEncontrada[5]}\\${lineaEncontrada[0].slice(
-        0,
-        4
-      )}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
+      // Rutas históricas por tipo de cliente
+      const rutasHistorico = {
+        REP: "\\\\kyrios\\Historico REPSOL\\00-EES\\",
+        RPP: "\\\\kyrios\\Historico REPSOL\\00-EES\\",
+        REX: "\\\\kyrios\\Historico REPSOL\\00-EES\\",
+        // Añadir más clientes con histórico cuando se conozcan sus rutas
+      };
 
-      if (destino && destinos.hasOwnProperty(destino)) {
-        rutaCompleta += `\\${destinos[destino]}`;
+      // Segmento común de subcarpetas para construir rutas
+      const subcarpetas = `${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${
+        lineaEncontrada[5]
+      }\\${lineaEncontrada[0].slice(0, 4)}-${lineaEncontrada[0].slice(4)} - ${
+        lineaEncontrada[1]
+      }`;
+
+      const sufijoDest =
+        destino && destinos.hasOwnProperty(destino)
+          ? `\\${destinos[destino]}`
+          : "";
+
+      let rutaCompleta = `${rutaBase}${subcarpetas}${sufijoDest}`;
+
+      // Fallback: abre la carpeta anterior (nivel municipio)
+      function abrirCarpetaAnterior() {
+        const rutaAnterior = `${rutaBase}${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
+        exec(`start "" "${rutaAnterior}"`, (error) => {
+          if (error) {
+            console.error("Error al abrir la carpeta anterior:", error);
+            res.status(500).send("Error al abrir la carpeta anterior");
+            return;
+          }
+          res.send({
+            ruta: rutaAnterior,
+            mensaje: `La carpeta especificada no se encontró porque no existe la carpeta ${lineaEncontrada[0].slice(
+              0,
+              4
+            )}-${lineaEncontrada[0].slice(4)} - ${
+              lineaEncontrada[1]
+            } para la orden que has ingresado [${orden}], se ha abierto la carpeta anterior.`,
+          });
+        });
       }
 
       fs.access(rutaCompleta, fs.constants.F_OK, (err) => {
         if (err) {
           console.log("Error al acceder a rutaCompleta:", err.message);
-          let rutaAnterior = `${rutaBase}${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
-          const comandoAnterior = `start "" "${rutaAnterior}"`;
-          exec(comandoAnterior, (error) => {
-            if (error) {
-              console.error("Error al abrir la carpeta anterior:", error);
-              res.status(500).send("Error al abrir la carpeta anterior");
-              return;
-            }
-            res.send({
-              ruta: rutaAnterior,
-              mensaje: `La carpeta especificada no se encontró porque no existe la carpeta ${lineaEncontrada[0].slice(
-                0,
-                4
-              )}-${lineaEncontrada[0].slice(4)} - ${
-                lineaEncontrada[1]
-              } para la orden que has ingresado [${orden}], se ha abierto la carpeta anterior.`,
+
+          // Intentar ruta histórica si existe para este cliente
+          const rutaHistoricoBase = rutasHistorico[tipoCliente];
+
+          if (rutaHistoricoBase) {
+            const rutaHistorico = `${rutaHistoricoBase}${subcarpetas}${sufijoDest}`;
+
+            fs.access(rutaHistorico, fs.constants.F_OK, (errHistorico) => {
+              if (!errHistorico) {
+                // Encontrada en histórico
+                exec(`start "" "${rutaHistorico}"`, (error) => {
+                  if (error) {
+                    console.error("Error al abrir carpeta histórica:", error);
+                    res.status(500).send("Error al abrir la carpeta histórica");
+                    return;
+                  }
+                  res.send({
+                    ruta: rutaHistorico,
+                    mensaje: `La orden [${orden}] no se encontró en la ruta activa, se ha abierto desde el archivo histórico.`,
+                  });
+                });
+                return;
+              }
+
+              // No está en histórico tampoco → fallback original
+              console.log("Tampoco encontrada en histórico:", rutaHistorico);
+              abrirCarpetaAnterior();
             });
-          });
+          } else {
+            // Cliente sin histórico configurado → fallback original
+            abrirCarpetaAnterior();
+          }
+
           return;
         }
 
-        const comando = `start "" "${rutaCompleta}"`;
-        exec(comando, (error) => {
+        // Ruta principal existe, abrirla
+        exec(`start "" "${rutaCompleta}"`, (error) => {
           if (error) {
             console.error("Error al abrir la carpeta:", error);
             res.status(500).send("Error al abrir la carpeta");
@@ -198,6 +245,7 @@ const buscarOM = (req, res) => {
     if (lineaEncontrada) {
       const tipoCliente = lineaEncontrada[6];
       let rutaBase = "";
+
       switch (tipoCliente) {
         case "REP":
           rutaBase = "\\\\Kyrios\\REPSOL\\ESP\\00-REDEES\\";
@@ -242,14 +290,80 @@ const buscarOM = (req, res) => {
 
       console.log("Ruta base:", rutaBase);
 
-      let rutaIntermedia = `${rutaBase}${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
-      let rutaCompleta = `${rutaIntermedia}\\${lineaEncontrada[0].slice(
-        0,
-        4
-      )}-${lineaEncontrada[0].slice(4)} - ${lineaEncontrada[1]}`;
+      // Rutas históricas por tipo de cliente
+      const rutasHistorico = {
+        REP: "\\\\kyrios\\Historico REPSOL\\00-EES\\",
+        RPP: "\\\\kyrios\\Historico REPSOL\\00-EES\\",
+        REX: "\\\\kyrios\\Historico REPSOL\\00-EES\\",
+      };
+
+      // Segmento común de subcarpetas
+      const subcarpetas = `${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${
+        lineaEncontrada[5]
+      }\\${lineaEncontrada[0].slice(0, 4)}-${lineaEncontrada[0].slice(4)} - ${
+        lineaEncontrada[1]
+      }`;
+
+      const sufijoDest =
+        destino && destinos.hasOwnProperty(destino)
+          ? `\\${destinos[destino]}`
+          : "";
+
+      const rutaIntermedia = `${rutaBase}${lineaEncontrada[4]}\\${lineaEncontrada[3]} - ${lineaEncontrada[5]}`;
+      let rutaCompleta = `${rutaBase}${subcarpetas}`;
 
       console.log("Ruta intermedia:", rutaIntermedia);
       console.log("Ruta completa:", rutaCompleta);
+
+      // Fallback histórico: busca en histórico y si no abre rutaIntermedia
+      function intentarHistorico() {
+        const rutaHistoricoBase = rutasHistorico[tipoCliente];
+
+        if (rutaHistoricoBase) {
+          const rutaHistorico = `${rutaHistoricoBase}${subcarpetas}${sufijoDest}`;
+          console.log("Intentando ruta histórica:", rutaHistorico);
+
+          fs.access(rutaHistorico, fs.constants.F_OK, (errHistorico) => {
+            if (!errHistorico) {
+              exec(`start "" "${rutaHistorico}"`, (error) => {
+                if (error) {
+                  console.error("Error al abrir carpeta histórica:", error);
+                  res.status(500).send("Error al abrir la carpeta histórica");
+                  return;
+                }
+                res.send({
+                  ruta: rutaHistorico,
+                  mensaje: `El aviso [${om}] no se encontró en la ruta activa, se ha abierto desde el archivo histórico.`,
+                });
+              });
+              return;
+            }
+
+            // No está en histórico tampoco → abrir rutaIntermedia
+            console.log("Tampoco encontrada en histórico:", rutaHistorico);
+            abrirRutaIntermedia();
+          });
+        } else {
+          // Cliente sin histórico configurado → abrir rutaIntermedia
+          abrirRutaIntermedia();
+        }
+      }
+
+      // Fallback final: abre la carpeta intermedia (nivel municipio)
+      function abrirRutaIntermedia() {
+        res.send({
+          ruta: rutaIntermedia,
+          mensaje: `La carpeta ${lineaEncontrada[0].slice(
+            0,
+            4
+          )}-${lineaEncontrada[0].slice(4)} - ${
+            lineaEncontrada[1]
+          } que va asociado al aviso ${
+            lineaEncontrada[2]
+          } según la información de OFYTIPOS.txt, no se ha encontrado en el directorio`,
+        });
+        exec(`start "" "${rutaIntermedia}"`);
+      }
 
       // Verificar la existencia de la ruta intermedia
       fs.access(rutaIntermedia, fs.constants.F_OK, (err) => {
@@ -259,8 +373,7 @@ const buscarOM = (req, res) => {
             ruta: rutaBase,
             mensaje: "La ruta intermedia no se encontró en el directorio",
           });
-          const comandoBase = `start "" "${rutaBase}"`;
-          exec(comandoBase);
+          exec(`start "" "${rutaBase}"`);
           return;
         }
         console.log("Verificando acceso a ruta intermedia");
@@ -273,24 +386,13 @@ const buscarOM = (req, res) => {
               "Código de Error:",
               err.code
             );
-            res.send({
-              ruta: rutaIntermedia,
-              mensaje: `La carpeta ${lineaEncontrada[0].slice(
-                0,
-                4
-              )}-${lineaEncontrada[0].slice(4)} - ${
-                lineaEncontrada[1]
-              } que va asociado al aviso ${
-                lineaEncontrada[2]
-              } según la información de OFYTIPOS.txt , no se ha encontrado en el directorio`,
-            });
-            const comandoIntermedio = `start "" "${rutaIntermedia}"`;
-            exec(comandoIntermedio);
+            // Intentar histórico antes de abrir rutaIntermedia
+            intentarHistorico();
             return;
           }
           console.log("Verificando acceso a ruta completa");
 
-          // Si se especificó un destino, agregarlo a la ruta
+          // Agregar destino si se especificó
           console.log(
             "Destino:",
             destino,
@@ -303,7 +405,7 @@ const buscarOM = (req, res) => {
 
           console.log("rutaCompleta después de agregar destino:", rutaCompleta);
 
-          // Verificar la existencia de la carpeta de destino, si se especificó
+          // Verificar la existencia de la carpeta de destino
           fs.access(rutaCompleta, fs.constants.F_OK, (err) => {
             if (err) {
               if (destino) {
@@ -319,25 +421,13 @@ const buscarOM = (req, res) => {
                   } según la información de OFYTIPOS.txt, no se ha encontrado en el directorio`,
                 });
               } else {
-                res.send({
-                  ruta: rutaIntermedia,
-                  mensaje: `La carpeta ${lineaEncontrada[0].slice(
-                    0,
-                    4
-                  )}-${lineaEncontrada[0].slice(4)} - ${
-                    lineaEncontrada[1]
-                  } que va asociado al aviso ${
-                    lineaEncontrada[2]
-                  } según la información de OFYTIPOS.txt, no se ha encontrado en el directorio`,
-                });
-                const comandoIntermedio = `start "" "${rutaIntermedia}"`;
-                exec(comandoIntermedio);
+                abrirRutaIntermedia();
               }
               return;
             }
             console.log("Verificando acceso a ruta completa con destino");
 
-            // Si todas las carpetas existen, ejecutar el comando para abrir la ruta
+            // Todo existe, abrir la ruta
             const comando = `start "" "${rutaCompleta}"`;
             exec(comando, (error) => {
               if (error) {
@@ -345,6 +435,7 @@ const buscarOM = (req, res) => {
                 res.status(500).send("Error al abrir la carpeta");
                 return;
               }
+              res.send({ ruta: rutaCompleta });
               console.log("Ejecutando comando para abrir ruta completa");
             });
           });

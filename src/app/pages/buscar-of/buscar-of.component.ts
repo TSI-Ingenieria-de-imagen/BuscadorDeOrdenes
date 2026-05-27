@@ -33,33 +33,30 @@ export class BuscarOfComponent implements OnInit {
   buscarOrden() {
     const orden = this.formulario?.get('of')?.value;
     const destino = this.formulario?.get('destino')?.value;
-    
+
     if (orden) {
-      // Si destino es una cadena vacía, se pasa null al servicio
       const destinoFinal = destino ? destino : null;
-      
+
       this.buscarService.buscarOrden(orden, destinoFinal).subscribe(
         respuesta => {
           if (respuesta.mensaje) {
             this.mensajeDelServidor = respuesta.mensaje;
-            window.alert(this.mensajeDelServidor);  // Esto mostrará una ventana de alerta con el mensaje
+            this.toastr.warning(this.mensajeDelServidor, 'Aviso', { timeOut: 6000, disableTimeOut: false });
           } else {
-            // Si no hay mensaje en la respuesta, asumimos que la operación fue exitosa
             this.mensajeDelServidor = 'Operación exitosa';
-            this.toastr.success(this.mensajeDelServidor);  // Esto mostrará una ventana de alerta con el mensaje de éxito
+            this.toastr.success(this.mensajeDelServidor);
           }
           console.log(respuesta);
         },
         error => {
           console.error(error);
           this.mensajeDelServidor = 'Error al buscar la orden';
-          this.toastr.error(this.mensajeDelServidor);  // Esto mostrará una ventana de alerta con el mensaje de error
+          this.toastr.error(this.mensajeDelServidor);
         }
       );
     } else {
-      console.error('El formulario o el valor del campo orden son null o undefined');
       this.mensajeDelServidor = 'El formulario o el valor del campo orden son null o undefined';
-      this.toastr.error(this.mensajeDelServidor);  // Esto mostrará una ventana de alerta con el mensaje de error
+      this.toastr.error(this.mensajeDelServidor);
     }
   }
   
